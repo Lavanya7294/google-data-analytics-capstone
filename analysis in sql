@@ -1,0 +1,82 @@
+--GOOGLE DATA ANALYTICS CAPSTONE SQL CODE
+--Created in SQLite
+--SQL Data Cleaning code at bottom
+
+
+--#1 Determine the start_date,start_time and end_date,end_time seperately 
+SELECT *,date(started_at) as start_date,date(ended_at) as end_date,time(started_at) as start_time,time(ended_at) as end_time
+from all_years_trip_data
+
+
+--#2 Count how many bike rides were from members or annual riders
+
+SELECT
+member_casual AS Type_of_Rider,
+COUNT(ride_id) AS Total_Num_Of_Rides
+
+FROM new_case_one
+	
+GROUP BY
+	member_casual;
+
+
+--#3 Find out how many bike rides were from each bike type
+
+SELECT
+member_casual as Type_of_Rider,
+rideable_type as bike_type,
+COUNT(ride_id) AS Total_Num_of_Rides
+
+FROM Cyclistic_Full_Data
+
+GROUP BY
+	Type_of_Rider, bike_type;
+
+--#4 Determine the Most popular day to ride the bike based on the category of the member
+
+SELECT  count(ride_id) as no_of_trips,case strftime('%w',end_date)
+           when '0' Then 'Sunday'
+		   when '1' Then 'Monday'
+		   when '2' Then 'Tuesday'
+		   when '3' Then 'Wednesday'
+		   when '4' Then 'Thrusday'
+		   when '5' Then 'Friday'
+		   when '6' Then 'Saturday'
+		   ELSE 'Unknown'
+		   END as start_day_name,member_casual
+from new_case_one
+group by start_day_name
+order by no_of_trips desc
+
+
+--#5 Determine the most popular starting location for all the customers
+SELECT
+start_station_name as start_location,concat(start_lat,start_lng) as start_lat_lng, concat(end_lat,end_lng) as end_lat_lng
+COUNT(ride_id) AS Num_of_Customers
+FROM new_case_one
+WHERE start_station_name IS NOT NULL
+GROUP BY start_location
+ORDER BY Num_of_Customers DESC
+LIMIT 10;
+
+
+--#6 Determine the most popular starting location for different riders
+SELECT
+start_station_name as start_location,concat(start_lat,start_lng) as start_lat_lng, concat(end_lat,end_lng) as end_lat_lng,member_casual
+COUNT(ride_id) AS Num_of_Customers
+FROM new_case_one
+WHERE start_station_name IS NOT NULL
+GROUP BY start_location,member_casual
+ORDER BY Num_of_Customers DESC,member_casual
+LIMIT 10;
+
+
+
+--#7 Determine the duration for rider and member
+select case when end_time-start_time <0 then start_time-end_time
+       else end_time-start_time
+       end as time_diff
+from new_case_one
+
+
+
