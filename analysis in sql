@@ -43,10 +43,10 @@ SELECT  count(ride_id) as no_of_trips,case strftime('%w',end_date)
 		   when '5' Then 'Friday'
 		   when '6' Then 'Saturday'
 		   ELSE 'Unknown'
-		   END as start_day_name,member_casual
+		   END as start_day_name
 from new_case_one
-group by start_day_name
-order by no_of_trips desc
+group by start_day_name,member_casual
+order by no_of_trips desc,member_casual
 
 
 --#5 Determine the most popular starting location for all the customers
@@ -77,6 +77,18 @@ select case when end_time-start_time <0 then start_time-end_time
        else end_time-start_time
        end as time_diff
 from new_case_one
+
+
+--#8 Determine the total duration including no. of days
+with cte as (select case when cast(end_time as time)-cast(start_time as time) <0 then cast(start_time as time)-cast(end_time as time)
+       else cast(end_time as time)-cast(start_time as time)
+       end as time_diff,ride_id
+from new_case_one)
+
+select ride_id,case when cast(end_date as date)-cast(start_date as date)!=0 then time_diff+(cast(end_date as date)-cast(start_date as date)*24
+			 else time_diff
+			 end as total time_diff
+from cte
 
 
 
